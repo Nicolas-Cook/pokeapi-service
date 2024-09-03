@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from user import User, Token, UserInDB
+from user import UserInDB
 from typing import Annotated
 
 fake_users_db = {

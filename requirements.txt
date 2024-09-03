@@ -2,3 +2,4 @@ fastapi
 fastapi-security
 uvicorn[standard]
 httpx
+python-multipart

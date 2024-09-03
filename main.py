@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Depends, Query, HTTPException
+from fastapi import FastAPI, Depends, Query
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import httpx
 from typing import List, Annotated
 from auth import get_current_user, fake_hash_password, fake_users_db
-from user import User, UserInDB
+from user import UserInDB
 from exceptions import PokemonNotFoundError, InvalidPokemonNameError, AuthenticationError, GenerationNotFoundError, InvalidGenerationNameError
 
 app = FastAPI()
@@ -30,20 +30,17 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
     return {"access_token": user.username, "token_type": "bearer"}
 
-@app.get("/pokemon/{pokemon_name}", response_model=List[str])
+@app.get("/pokemon/{pokemon_name}")
 async def get_pokemon(pokemon_name: str, token: Annotated[str, Depends(get_current_user)]):
     """
     Obtiene la información de un pokémon por su nombre.
-
-    Raises:
-        InvalidPokemonNameError: Si el nombre del pokémon no es alfanumérico.
-        PokemonNotFoundError: Si el pokémon no existe.
         
     Returns:
         La información del pokémon.
     """
     if not pokemon_name.isalpha():
         raise InvalidPokemonNameError(pokemon_name)
+    pokemon_name = pokemon_name.lower()
     url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
@@ -81,9 +78,6 @@ async def get_generation(
         generation: La generación de los pokémon.
         page: El número de página de la lista.
         page_size: El tamaño de cada página.
-    
-    Raises:
-        HTTPException: Si no se encuentra la generación.
     
     Returns:
         La lista de nombres de pokémon.
